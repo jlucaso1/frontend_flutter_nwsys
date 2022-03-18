@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:prova_nwsys/controllers/products_controller.dart';
@@ -30,39 +28,44 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
         ],
       ),
-      body: Obx(
-        () => ListView.builder(
-          itemCount: controller.products.length,
-          itemBuilder: (context, index) {
-            var product = controller.products[index];
-            return ListTile(
-              title: Text(product.nome),
-              subtitle: Text(product.preco.toString()),
-              leading: SizedBox(
-                width: 50,
-                child: Image.memory(
-                  converBase64ImageToUint8List(
-                    product.imagembase64 == null ||
-                            product.imagembase64!.isEmpty
-                        ? defaultImage
-                        : product.imagembase64!,
+      body: RefreshIndicator(
+        onRefresh: () async => controller.loadProducts(),
+        child: Obx(
+          () => ListView.builder(
+            itemCount: controller.products.length,
+            itemBuilder: (context, index) {
+              var product = controller.products[index];
+              return ListTile(
+                title: Text(product.nome),
+                subtitle: Text("R\$ ${product.preco.toString()}"),
+                leading: SizedBox(
+                  width: 50,
+                  child: ClipOval(
+                    child: Image.memory(
+                      converBase64ImageToUint8List(
+                        product.imagembase64 == null ||
+                                product.imagembase64!.isEmpty
+                            ? defaultImage
+                            : product.imagembase64!,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => controller.deleteProduct(product)),
-                ],
-              ),
-            );
-          },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () => controller.showEditDialog(product),
+                    ),
+                    IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => controller.deleteProduct(product)),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

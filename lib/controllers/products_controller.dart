@@ -84,4 +84,62 @@ class ProductsController extends GetxController {
     await api.client.delete('/manager/products/${product.id}');
     loadProducts();
   }
+
+  showEditDialog(Product oldProduct) {
+    var nome = TextEditingController();
+    var preco = TextEditingController();
+    var imagembase64 = TextEditingController();
+    Get.defaultDialog(
+      title: 'Editar Produto',
+      content: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Nome'),
+            controller: nome,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Preço'),
+            controller: preco,
+            keyboardType: TextInputType.number,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Imagem'),
+            controller: imagembase64,
+          ),
+        ],
+      ),
+      actions: [
+        ElevatedButton(
+          child: const Text('Cancelar'),
+          onPressed: () => Get.back(),
+        ),
+        ElevatedButton(
+          child: const Text('Salvar'),
+          onPressed: () async {
+            var product = Product(
+              nome: nome.text.isEmpty ? oldProduct.nome : nome.text,
+              preco: preco.text.isEmpty
+                  ? oldProduct.preco
+                  : double.parse(preco.text),
+              imagembase64: imagembase64.text.isEmpty
+                  ? oldProduct.imagembase64
+                  : imagembase64.text,
+            );
+
+            try {
+              await api.client.put('/manager/products/${oldProduct.id}', data: {
+                'nome': product.nome,
+                'preco': product.preco,
+                'imagembase64': product.imagembase64,
+              });
+              loadProducts();
+              Get.back();
+            } catch (e) {
+              Get.snackbar('Erro', e.toString());
+            }
+          },
+        ),
+      ],
+    );
+  }
 }

@@ -43,6 +43,8 @@ class AuthService extends GetxController {
     isLoggedIn.value = false;
     token = null;
     api.client.options.headers = {};
+    var box = GetStorage();
+    box.remove('token');
     await Get.offNamed('/login');
   }
 
